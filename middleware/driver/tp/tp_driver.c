@@ -134,7 +134,8 @@ void bk_tp_set_sensor_devices_list(const tp_sensor_config_t **list, uint16_t siz
 {
     tp_sensor_devices_list = list;
     tp_sensor_devices_size = size;
-}
+
+}
 
 int tp_i2c_read_uint8(uint8_t addr, uint8_t reg, uint8_t *buff, uint16_t len)
 {
@@ -589,7 +590,7 @@ bk_err_t bk_tp_driver_init(tp_config_t *config)
 	tp_device.int_type = config->int_type;
 	tp_device.refresh_rate = config->refresh_rate;
 	tp_device.tp_num = config->tp_num;
-	LOGI("%s, name=%s, id=%d, ppi=%d, x_size=%d, y_size=%d, int_type=%d, refresh_rate=%d, tp_num=%d.\r\n", __func__, tp_device.name, tp_device.id, tp_device.ppi, sensor_user_config.x_size, sensor_user_config.y_size, tp_device.int_type, tp_device.refresh_rate, tp_device.tp_num);
+	os_printf("%s: name=%s, id=%d, ppi=%d, x_size=%d, y_size=%d, int_type=%d, refresh_rate=%d, tp_num=%d.\r\n", __func__, tp_device.name, tp_device.id, tp_device.ppi, sensor_user_config.x_size, sensor_user_config.y_size, tp_device.int_type, tp_device.refresh_rate, tp_device.tp_num);
 
 	// initilization finish.
 	tp_driver_init_flag = true;
