@@ -18,6 +18,7 @@
 #include "aud_hal.h"
 #include "sys_driver.h"
 #include "clock_driver.h"
+#include "sys_ll.h"
 #include <os/os.h>
 #include <os/mem.h>
 #include <driver/int.h>
@@ -44,6 +45,42 @@
 
 extern void delay(int num);
 
+static void bk_aud_dmic_dump_diag(const char *stage)
+{
+	uint32_t gpio_config1 = REG_READ(SOC_SYS_REG_BASE + (0x31U << 2));
+	uint32_t gpio8_mode = (gpio_config1 >> 0) & 0xFU;
+	uint32_t gpio9_mode = (gpio_config1 >> 4) & 0xFU;
+	uint32_t audio_config = aud_ll_get_audio_config_value();
+	uint32_t fifo_status = aud_hal_get_fifo_status_value();
+	uint32_t aud_clk_sel = sys_ll_get_cpu_clk_div_mode1_cksel_aud();
+	uint32_t aud_clk_en = sys_ll_get_cpu_device_clk_enable_aud_cken();
+	uint32_t dmic_clk_div_en = sys_ll_get_cpu_clk_div_mode2_reserved_13_13();
+
+	LOGW("DMIC diag %s: gpio8_mode=%lu gpio9_mode=%lu expected_dmic_mode=3\r\n",
+		stage,
+		(unsigned long)gpio8_mode,
+		(unsigned long)gpio9_mode);
+	LOGW("DMIC diag %s: audio_config=0x%08lx apll_sel=%lu dmic_enable=%lu dmic_cic_sel=%lu dig_mic_div=%lu\r\n",
+		stage,
+		(unsigned long)audio_config,
+		(unsigned long)aud_hal_get_audio_config_apll_sel(),
+		(unsigned long)aud_hal_get_audio_config_dmic_enable(),
+		(unsigned long)aud_hal_get_audio_config_dmic_cic_sel(),
+		(unsigned long)aud_hal_get_audio_config_dig_mic_div());
+	LOGW("DMIC diag %s: fifo_status=0x%08lx near_full=%lu near_empty=%lu full=%lu empty=%lu\r\n",
+		stage,
+		(unsigned long)fifo_status,
+		(unsigned long)aud_hal_get_fifo_status_dmic_near_full(),
+		(unsigned long)aud_hal_get_fifo_status_dmic_near_empty(),
+		(unsigned long)aud_hal_get_fifo_status_dmic_fifo_full(),
+		(unsigned long)aud_hal_get_fifo_status_dmic_fifo_empty());
+	LOGW("DMIC diag %s: sys_aud_clk_sel=%lu sys_aud_clk_en=%lu sys_dmic_clk_div_en=%lu\r\n",
+		stage,
+		(unsigned long)aud_clk_sel,
+		(unsigned long)aud_clk_en,
+		(unsigned long)dmic_clk_div_en);
+}
+
 bk_err_t bk_aud_dmic_init(aud_dmic_config_t *dmic_config)
 {
 	BK_RETURN_ON_NULL(dmic_config);
@@ -62,17 +99,22 @@ bk_err_t bk_aud_dmic_init(aud_dmic_config_t *dmic_config)
 	}
 
 	/* config gpio */
-	gpio_dev_unmap(GPIO_8);
-	gpio_dev_map(GPIO_8, GPIO_DEV_DMIC1_CLK);
-	gpio_dev_unmap(GPIO_9);
-	gpio_dev_map(GPIO_9, GPIO_DEV_DMIC1_DAT);
+	bk_err_t gpio8_unmap_ret = gpio_dev_unmap(GPIO_8);
+	bk_err_t gpio8_map_ret = gpio_dev_map(GPIO_8, GPIO_DEV_DMIC1_CLK);
+	bk_err_t gpio9_unmap_ret = gpio_dev_unmap(GPIO_9);
+	bk_err_t gpio9_map_ret = gpio_dev_map(GPIO_9, GPIO_DEV_DMIC1_DAT);
+	LOGW("DMIC gpio map: gpio8_unmap=%d gpio8_map=%d gpio9_unmap=%d gpio9_map=%d\r\n",
+		gpio8_unmap_ret, gpio8_map_ret, gpio9_unmap_ret, gpio9_map_ret);
+	bk_aud_dmic_dump_diag("after_gpio_map");
 
 	//reserved channel config
 
 	bk_aud_clk_config(AUD_CLK_APLL);
+	bk_aud_dmic_dump_diag("after_clk_config");
 
 	if (BK_OK != bk_aud_dmic_set_samp_rate(dmic_config->samp_rate))
 		goto fail;
+	bk_aud_dmic_dump_diag("after_sample_rate");
 
 	return BK_OK;
 fail:
@@ -239,7 +281,9 @@ bk_err_t bk_aud_dmic_disable_int(void)
 bk_err_t bk_aud_dmic_start(void)
 {
 	AUD_DMIC_RETURN_ON_NOT_INIT();
+	bk_aud_dmic_dump_diag("before_start");
 	aud_hal_set_audio_config_dmic_enable(1);
+	bk_aud_dmic_dump_diag("after_start");
 	return BK_OK;
 }
 
@@ -265,4 +309,3 @@ bk_err_t bk_aud_dmic_register_isr(aud_isr_t isr)
 	AUD_DMIC_RETURN_ON_NOT_INIT();
 	return bk_aud_register_aud_isr(AUD_ISR_DMIC, isr);
 }
-

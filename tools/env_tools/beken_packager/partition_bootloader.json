@@ -12,21 +12,21 @@
             "name": "app",
             "flash_name": "beken_onchip_crc",
             "offset": "0x00011000",
-            "len": "1836K"
+            "len": "2244K"
         },
         {
             "magic": "0x45503130",
             "name": "app1",
             "flash_name": "beken_onchip_crc",
-            "offset": "0x001dc000",
-            "len": "748K"
+            "offset": "0x00242000",
+            "len": "380K"
         },
         {
             "magic": "0x45503130",
             "name": "download",
             "flash_name": "beken_onchip",
-            "offset": "0x00297000",
-            "len": "1292K"
+            "offset": "0x002a1000",
+            "len": "1296K"
         }
     ]
 }

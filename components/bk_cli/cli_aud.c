@@ -1232,4 +1232,3 @@ int cli_aud_init(void)
 {
 	return cli_register_commands(s_aud_commands, AUD_CMD_CNT);
 }
-

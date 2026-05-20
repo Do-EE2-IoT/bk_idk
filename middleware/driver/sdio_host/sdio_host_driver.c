@@ -96,17 +96,28 @@ static bool s_sdio_host_driver_is_init = false;
 
 static void sdio_host_isr(void);
 void bk_sdio_clock_en(uint32_t enable);
-
+#define SDIO_HOST_GPIO_MAP_CUSTOM \
+{\
+	{GPIO_14, GPIO_DEV_SDIO_HOST_CLK},\
+	{GPIO_15, GPIO_DEV_SDIO_HOST_CMD},\
+	{GPIO_16, GPIO_DEV_SDIO_HOST_DATA0},\
+	{GPIO_17, GPIO_DEV_SDIO_HOST_DATA1},\
+	{GPIO_18, GPIO_DEV_SDIO_HOST_DATA2},\
+	{GPIO_19, GPIO_DEV_SDIO_HOST_DATA3},\
+}
 
 #if (!CONFIG_GPIO_DEFAULT_SET_SUPPORT)
 static void sdio_host_init_gpio(void)
 {
-	const sdio_host_gpio_map_t sdio_host_gpio_map_table[] = SDIO_HOST_GPIO_MAP;
+	const sdio_host_gpio_map_t sdio_host_gpio_map_table[] = SDIO_HOST_GPIO_MAP_CUSTOM;
 
 	/* set gpio sdio host map: clk,cmd,data0 */
 	for (uint32_t i = SDIO_HOST_GPIO_CLK_INDEX; i < SDIO_HOST_GPIO_PIN_NUMBER; i++) {
 		gpio_dev_unmap(sdio_host_gpio_map_table[i].gpio_id);
+		os_printf("sdio host init gpio, gpio_id=%d\r\n", sdio_host_gpio_map_table[i].gpio_id);
 	}
+
+	os_printf("sdio host init gpio\r\n");
 
 #if (CONFIG_SYSTEM_CTRL)
 #if CONFIG_SDIO_4LINES_EN
@@ -351,9 +362,11 @@ static void sdio_host_init_common(void)
 	 * GPIO info is setted in GPIO_DEFAULT_DEV_CONFIG and inited in bk_gpio_driver_init->gpio_hal_default_map_init.
 	 * If needs to re-config GPIO, can deal it here.
 	 */
+	os_printf("sdio host init gpio default\r\n");
 #else
 	/* config sdio host gpio */
 	sdio_host_init_gpio();
+	os_printf("sdio host init gpio\r\n");
 #endif
 }
 

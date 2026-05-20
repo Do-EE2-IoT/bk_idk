@@ -1033,7 +1033,7 @@ static void  i2c0_isr_common(i2c_id_t id)
 	switch (s_i2c[id].work_mode) {
 	case I2C_MASTER_WRITE: {
 		if (!i2c_hal_is_rx_ack_triggered(hal, int_status)) {
-			I2C_LOGW("i2c(%d) master_write get ack failed\r\n", id);
+			I2C_LOGI("i2c(%d) master_write get ack failed\r\n", id);
 			i2c_transtate_set(id);
 			i2c_master_stop(id);
 			rtos_set_semaphore(&s_i2c[id].tx_sema);
@@ -1045,7 +1045,7 @@ static void  i2c0_isr_common(i2c_id_t id)
 	case I2C_MASTER_READ: {
 		if (s_i2c[id].master_status != I2C_RX_DATA &&
 			!i2c_hal_is_rx_ack_triggered(hal, int_status)) {
-			I2C_LOGW("i2c(%d) master_read get ack failed\r\n", id);
+			I2C_LOGI("i2c(%d) master_read get ack failed\r\n", id);
 			i2c_transtate_set(id);
 			i2c_master_stop(id);
 			rtos_set_semaphore(&s_i2c[id].rx_sema);

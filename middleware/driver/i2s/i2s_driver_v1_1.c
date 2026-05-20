@@ -29,6 +29,13 @@
 #include "bk_general_dma.h"
 
 
+#define MAP_GPIO(gpio, func, desc) \
+	do { \
+		gpio_dev_unmap(gpio); \
+		gpio_dev_map(gpio, func); \
+		os_printf("[GPIO MAP] %-8s -> %s\n", #gpio, desc); \
+	} while(0)
+
 #define DMA_CARRY_I2S_RINGBUF_SAFE_INTERVAL    (8)
 
 
@@ -83,60 +90,46 @@ dma_id_t i2s_get_dma_index(void)
 	return i2s_dma_idx;
 }
 
+
 static void i2s_init_gpio(i2s_gpio_group_id_t id)
 {
 	switch (id) {
+
 		case I2S_GPIO_GROUP_0:
-			gpio_dev_unmap(GPIO_6);
-			gpio_dev_map(GPIO_6, GPIO_DEV_I2S1_CLK);
-			gpio_dev_unmap(GPIO_7);
-			gpio_dev_map(GPIO_7, GPIO_DEV_I2S1_SYNC);
-			gpio_dev_unmap(GPIO_8);
-			gpio_dev_map(GPIO_8, GPIO_DEV_I2S1_DIN);
-			gpio_dev_unmap(GPIO_9);
-			gpio_dev_map(GPIO_9, GPIO_DEV_I2S1_DOUT);
-			gpio_dev_unmap(GPIO_28);
-			gpio_dev_map(GPIO_28, GPIO_DEV_I2S1_MCLK);
-			//bk_gpio_disable_output(GPIO_28);
+			os_printf("\n========== I2S GPIO GROUP 0 ==========\n");
+
+			MAP_GPIO(GPIO_6,  GPIO_DEV_I2S1_CLK,  "I2S1_CLK  (SCLK)");
+			MAP_GPIO(GPIO_7,  GPIO_DEV_I2S1_SYNC, "I2S1_SYNC (LRCK)");
+			MAP_GPIO(GPIO_8,  GPIO_DEV_I2S1_DIN,  "I2S1_DIN  (SDIN)");
+			MAP_GPIO(GPIO_9,  GPIO_DEV_I2S1_DOUT, "I2S1_DOUT");
+			MAP_GPIO(GPIO_28, GPIO_DEV_I2S1_MCLK, "I2S1_MCLK (MCLK)");
+
 			break;
 
 		case I2S_GPIO_GROUP_1:
-			gpio_dev_unmap(GPIO_40);
-			gpio_dev_map(GPIO_40, GPIO_DEV_I2S2_CLK);
-			//bk_gpio_disable_output(GPIO_40);
-			gpio_dev_unmap(GPIO_41);
-			gpio_dev_map(GPIO_41, GPIO_DEV_I2S2_SYNC);
-			//bk_gpio_disable_output(GPIO_41);
-			gpio_dev_unmap(GPIO_42);
-			gpio_dev_map(GPIO_42, GPIO_DEV_I2S2_DIN);
-			//bk_gpio_disable_output(GPIO_42);
-			gpio_dev_unmap(GPIO_43);
-			gpio_dev_map(GPIO_43, GPIO_DEV_I2S2_DOUT);
-			//bk_gpio_disable_output(GPIO_43);
-			gpio_dev_unmap(GPIO_28);
-			gpio_dev_map(GPIO_28, GPIO_DEV_I2S1_MCLK);
-			//bk_gpio_disable_output(GPIO_28);
+			os_printf("\n========== I2S GPIO GROUP 1 ==========\n");
+
+			MAP_GPIO(GPIO_40, GPIO_DEV_I2S2_CLK,  "I2S2_CLK");
+			MAP_GPIO(GPIO_41, GPIO_DEV_I2S2_SYNC, "I2S2_SYNC");
+			MAP_GPIO(GPIO_42, GPIO_DEV_I2S2_DIN,  "I2S2_DIN");
+			MAP_GPIO(GPIO_43, GPIO_DEV_I2S2_DOUT, "I2S2_DOUT");
+			MAP_GPIO(GPIO_28, GPIO_DEV_I2S1_MCLK, "I2S1_MCLK");
+
 			break;
 
 		case I2S_GPIO_GROUP_2:
-			gpio_dev_unmap(GPIO_44);
-			gpio_dev_map(GPIO_44, GPIO_DEV_I2S3_CLK);
-			//bk_gpio_disable_output(GPIO_44);
-			gpio_dev_unmap(GPIO_45);
-			gpio_dev_map(GPIO_45, GPIO_DEV_I2S3_SYNC);
-			//bk_gpio_disable_output(GPIO_45);
-			gpio_dev_unmap(GPIO_46);
-			gpio_dev_map(GPIO_46, GPIO_DEV_I2S3_DIN);
-			//bk_gpio_disable_output(GPIO_46);
-			gpio_dev_unmap(GPIO_47);
-			gpio_dev_map(GPIO_47, GPIO_DEV_I2S3_DOUT);
-			//bk_gpio_disable_output(GPIO_47);
-			gpio_dev_unmap(GPIO_28);
-			gpio_dev_map(GPIO_28, GPIO_DEV_I2S1_MCLK);
-			//bk_gpio_disable_output(GPIO_28);
+			os_printf("\n========== I2S GPIO GROUP 2 ==========\n");
+
+			MAP_GPIO(GPIO_44, GPIO_DEV_I2S3_CLK,  "I2S3_CLK");
+			MAP_GPIO(GPIO_45, GPIO_DEV_I2S3_SYNC, "I2S3_SYNC (LRCLK)");
+			MAP_GPIO(GPIO_46, GPIO_DEV_I2S3_DIN,  "I2S3_DIN");
+			MAP_GPIO(GPIO_47, GPIO_DEV_I2S3_DOUT, "I2S3_DOUT");
+			MAP_GPIO(GPIO_28, GPIO_DEV_I2S1_MCLK, "I2S1_MCLK");
+
 			break;
 
 		default:
+			os_printf("[I2S] Unknown GPIO group: %d\n", id);
 			break;
 	}
 }

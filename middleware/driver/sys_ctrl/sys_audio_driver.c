@@ -412,6 +412,7 @@ uint32_t sys_drv_i2s0_ckdiv_set(uint32_t value)
 	uint32_t int_level = sys_drv_enter_critical();
 
 	sys_hal_i2s0_ckdiv_set(value);
+	//sys_hal_i2s_select_clock(value);
 	sys_drv_exit_critical(int_level);
 	return SYS_DRV_SUCCESS;
 }
